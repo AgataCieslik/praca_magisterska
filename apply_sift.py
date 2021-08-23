@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from numpy import linalg as LA
 
+
 # jak zorganizować liczenie keypointów  i homografii? - przemyśleć
 # 1: liczymy keypointy dla głównych obrazów
 # 2: dla każdego wycinka liczymy keypointy
@@ -13,7 +14,7 @@ from numpy import linalg as LA
 
 min_match_count = 10
 #FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm = 1, trees = 20)
+index_params = dict(algorithm = 1, trees = 1)
 search_params = dict(checks = 50)
 flann = cv.FlannBasedMatcher(index_params, search_params)
 
@@ -36,11 +37,18 @@ for root, directories, files in os.walk('.\\objects\\'):
 metrics = []
 
 for crop_path in iter(crops):
+    print(crop_path)
     crop_img = cv.imread(crop_path, cv.IMREAD_GRAYSCALE)
     crop_kpts, crop_dpts = sift.detectAndCompute(crop_img, None)
-    no_of_descriptors = len(crop_dpts)
-    if (crop_dpts is None) or (no_of_descriptors <= 2):
-        metrics.append([no_of_descriptors]+[np.nan for i in range(8)])
+
+    if crop_dpts is None:
+        no_of_descriptors = 0
+    else:
+        no_of_descriptors = len(crop_dpts)
+
+    if no_of_descriptors <= 2:
+
+        metrics.append([crop_path, "-", no_of_descriptors]+[np.nan for i in range(8)])
     else:
         for painting_name, results in paintings_results.items():
             painting_kpts = results[0]
@@ -55,16 +63,16 @@ for crop_path in iter(crops):
             distances = [m.distance for m in good_matches]
             no_of_matches = len(good_matches)
             if no_of_matches < min_match_count:
-                metrics.append([no_of_descriptors,no_of_matches]+[np.nan for i in range(7)])
+                metrics.append([crop_path, painting_name, no_of_descriptors,no_of_matches]+[np.nan for i in range(7)])
             else:
                 src_pts = np.float32([crop_kpts[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
                 dst_pts = np.float32([painting_kpts[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
                 M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
                 if M is None:
-                    metrics.append([no_of_descriptors, no_of_matches,np.median(distances),
+                    metrics.append([crop_path, painting_name,no_of_descriptors, no_of_matches,np.median(distances),
                                     np.mean(distances),np.std(distances)]+[np.nan for i in range(4)])
                 else:
-                    metrics.append([no_of_descriptors,
+                    metrics.append([crop_path, painting_name,no_of_descriptors,
                                     no_of_matches,
                                     np.median(distances),
                                     np.mean(distances),
@@ -74,7 +82,7 @@ for crop_path in iter(crops):
                                     LA.norm(M, 'fro'),
                                     LA.det(M)])
 
-metrics_df = pd.DataFrame(metrics, columns=['no_of_descriptors',
+metrics_df = pd.DataFrame(metrics, columns=['crop_path', 'painting_name','no_of_descriptors',
                                             'no_of_matches',
                                             'dist_median',
                                             'dist_mean',
@@ -84,7 +92,7 @@ metrics_df = pd.DataFrame(metrics, columns=['no_of_descriptors',
                                             'homography_norm',
                                             'homography_det'])
 
-metrics.to_csv("test")
+metrics_df.to_csv("test.csv")
         # jeśli obu deskryptorów jest min 2: szukamy matchy
 # metryki: no_of_keypoints = np.nan
 #             dist_median = np.nan
