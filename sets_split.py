@@ -2,7 +2,7 @@ import pandas as pd
 from numpy.random import choice
 import numpy as np
 
-results = pd.read_csv("test.csv")
+results = pd.read_csv("test.csv", index_col=0)
 
 results['directory'] = results['crop_path'].apply(lambda path: path.split("\\")[2])
 results['origin_painting'] = results['crop_path'].apply(lambda path: path.split("\\")[3])
@@ -13,17 +13,16 @@ results.loc[(results['directory'] == 'paintings') & (
 results.loc[(results['directory'] == 'reproductions') & (
         results['origin_painting'] == results['painting_name']), 'class'] = 'reproduction'
 
-print(len(results[results['class'] == 'identity']))
-print(len(results[results['class'] == 'reproduction']))
-print(len(results[results['class'] == 'false']))
 
-# rozlosować spośród false 4060 czy 4799?, z tego rozbicie na treningowy i testowy
+results['inliers_ratio'] = results['no_of_inliers']/(results['no_of_outliers']+results['no_of_inliers'])
+results['matches_ratio'] = results['no_of_matches']/results['no_of_descriptors']
+results['inliers_to_descriptors_ratio'] = results['no_of_inliers']/results['no_of_descriptors']
 
-results = pd.concat([results[results['class'] == 'false'].sample(
-    n=len(results[results['class'] == 'reproduction']) + len(results[results['class'] == 'identity'])),
-    results[results['class'] != 'false']])
+ratio_columns = ['no_of_matches','no_of_inliers','matches_ratio','inliers_ratio','inliers_to_descriptors_ratio']
+results[ratio_columns] = results[ratio_columns].fillna(value=0)
+
 '''
-results_ver_2 = pd.concat([results[results['class'] == 'false'].sample(
+results = pd.concat([results[results['class'] == 'false'].sample(
     n=len(results[results['class'] == 'identity'])), results[results['class'] == 'reproduction'].sample(
     n=len(results[results['class'] == 'identity'])),
     results[results['class'] == 'identity']])

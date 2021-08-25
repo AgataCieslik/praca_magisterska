@@ -17,6 +17,5 @@ for painting in iter(paintings):
     reproductions_path = f'./data/reproductions/{painting_name}/'
     reproductions = [reproductions_path + reproduction for reproduction in os.listdir(reproductions_path)]
 
-    yolo_model(paintings_path+painting).crop(f'./objects/paintings/{painting_name}')
+    yolo_model(paintings_path + painting).crop(f'./objects/paintings/{painting_name}')
     yolo_model(reproductions).crop(f'./objects/reproductions/{painting_name}')
-

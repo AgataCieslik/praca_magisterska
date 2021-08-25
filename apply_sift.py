@@ -4,18 +4,10 @@ import os
 import pandas as pd
 from numpy import linalg as LA
 
-
-# jak zorganizować liczenie keypointów  i homografii? - przemyśleć
-# 1: liczymy keypointy dla głównych obrazów
-# 2: dla każdego wycinka liczymy keypointy
-# dla policzonych keypointów wyliczamy związki z keypointami głównych i liczymy metryki
-# 4: metryki (jakie?) zapisujemy do pandaska
-# 5: na podstawie nazw plików określamy klasę
-
 min_match_count = 10
-#FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm = 1, trees = 1)
-search_params = dict(checks = 50)
+# FLANN_INDEX_KDTREE = 1
+index_params = dict(algorithm=1, trees=1)
+search_params = dict(checks=50)
 flann = cv.FlannBasedMatcher(index_params, search_params)
 
 sift = cv.SIFT_create()
@@ -27,7 +19,7 @@ for painting in iter(paintings):
     painting_name = painting.split(".")[0]
     painting_img = cv.imread(os.path.join(paintings_path, painting), cv.IMREAD_GRAYSCALE)
     keypoints, descriptors = sift.detectAndCompute(painting_img, None)
-    paintings_results.update({painting_name : [keypoints, descriptors]})
+    paintings_results.update({painting_name: [keypoints, descriptors]})
 
 crops = []
 
@@ -48,7 +40,7 @@ for crop_path in iter(crops):
 
     if no_of_descriptors <= 2:
 
-        metrics.append([crop_path, "-", no_of_descriptors]+[np.nan for i in range(8)])
+        metrics.append([crop_path, "-", no_of_descriptors] + [np.nan for i in range(8)])
     else:
         for painting_name, results in paintings_results.items():
             painting_kpts = results[0]
@@ -56,23 +48,24 @@ for crop_path in iter(crops):
 
             matches = flann.knnMatch(crop_dpts, painting_dpts, k=2)
             good_matches = []
-            for m,n in matches:
+            for m, n in matches:
                 # test Lowe'a
                 if m.distance < 0.8 * n.distance:
                     good_matches.append(m)
             distances = [m.distance for m in good_matches]
             no_of_matches = len(good_matches)
             if no_of_matches < min_match_count:
-                metrics.append([crop_path, painting_name, no_of_descriptors,no_of_matches]+[np.nan for i in range(7)])
+                metrics.append(
+                    [crop_path, painting_name, no_of_descriptors, no_of_matches] + [np.nan for i in range(7)])
             else:
                 src_pts = np.float32([crop_kpts[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
                 dst_pts = np.float32([painting_kpts[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
                 M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
                 if M is None:
-                    metrics.append([crop_path, painting_name,no_of_descriptors, no_of_matches,np.median(distances),
-                                    np.mean(distances),np.std(distances)]+[np.nan for i in range(4)])
+                    metrics.append([crop_path, painting_name, no_of_descriptors, no_of_matches, np.median(distances),
+                                    np.mean(distances), np.std(distances)] + [np.nan for i in range(4)])
                 else:
-                    metrics.append([crop_path, painting_name,no_of_descriptors,
+                    metrics.append([crop_path, painting_name, no_of_descriptors,
                                     no_of_matches,
                                     np.median(distances),
                                     np.mean(distances),
@@ -82,7 +75,7 @@ for crop_path in iter(crops):
                                     LA.norm(M, 'fro'),
                                     LA.det(M)])
 
-metrics_df = pd.DataFrame(metrics, columns=['crop_path', 'painting_name','no_of_descriptors',
+metrics_df = pd.DataFrame(metrics, columns=['crop_path', 'painting_name', 'no_of_descriptors',
                                             'no_of_matches',
                                             'dist_median',
                                             'dist_mean',
@@ -93,17 +86,3 @@ metrics_df = pd.DataFrame(metrics, columns=['crop_path', 'painting_name','no_of_
                                             'homography_det'])
 
 metrics_df.to_csv("test.csv")
-        # jeśli obu deskryptorów jest min 2: szukamy matchy
-# metryki: no_of_keypoints = np.nan
-#             dist_median = np.nan
-#             dist_mean = np.nan
-#             dist_sd = np.nan
-#             no_of_matches = np.nan
-#             no_of_outliers = np.nan
-#             no_of_inliers = np.nan
-# metrics.append([tu metryki po przecinku ]
-
-# zaczynamy od :
-# ścieżki do całych obrazów -ok
-# jak trzymać keypointy i deskryptory? słownik: nazwa obrazu: {deskryptory: [], keypointy:[]} - chyba ok
-# ścieżki (wszystkie) do ścinków w jednej tablicy - ok
