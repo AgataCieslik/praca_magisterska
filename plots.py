@@ -6,7 +6,7 @@ train_data = pd.read_csv(r"train_set.csv", index_col = 0)
 test_data = pd.read_csv(r"test_set.csv",index_col = 0)
 
 measures = list(train_data.columns)
-for column in ['crop_path','painting_name', 'directory','origin_painting','class', 'set']:
+for column in ['crop_path','painting_name', 'directory','origin_painting','class', 'set', 'classification']:
     measures.remove(column)
 
 sns.set_theme(style = "whitegrid")
