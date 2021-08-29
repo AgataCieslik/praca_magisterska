@@ -1,7 +1,7 @@
 import pandas as pd
 import scipy.stats as stats
 
-data = pd.read_csv(r"train_set.csv", index_col=0)
+data = pd.read_csv(r"./sets_split/train_set.csv", index_col=0)
 numeric_columns = ['no_of_matches', 'dist_median', 'dist_mean', 'dist_std', 'no_of_inliers', 'homography_norm',
                    'homography_det', 'inliers_to_descriptors_ratio', 'matches_ratio']
 

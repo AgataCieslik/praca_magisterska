@@ -49,6 +49,6 @@ train_set = results[results['set'] == 'train']
 validation_set = results[results['set'] == 'validation']
 test_set = results[results['set'] == 'test']
 
-train_set.to_csv("train_set.csv")
-validation_set.to_csv("validation_set.csv")
-test_set.to_csv("test_set.csv")
+train_set.to_csv(r"./sets_split/train_set.csv")
+validation_set.to_csv(r"./sets_split/validation_set.csv")
+test_set.to_csv(r"./sets_split/test_set.csv")

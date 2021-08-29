@@ -2,7 +2,7 @@ from sklearn import tree
 import pandas as pd
 from joblib import dump
 
-data = pd.read_csv(r"train_set.csv", index_col=0)
+data = pd.read_csv(r"./sets_split/train_set.csv", index_col=0)
 
 clf_depth_1 = tree.DecisionTreeClassifier(max_depth=1)
 clf_depth_2 = tree.DecisionTreeClassifier(max_depth=2)

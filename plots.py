@@ -2,8 +2,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-train_data = pd.read_csv(r"train_set.csv", index_col = 0)
-test_data = pd.read_csv(r"test_set.csv",index_col = 0)
+train_data = pd.read_csv(r"./sets_split/train_set.csv", index_col = 0)
+test_data = pd.read_csv(r"./sets_split/test_set.csv",index_col = 0)
 
 measures = list(train_data.columns)
 for column in ['crop_path','painting_name', 'directory','origin_painting','class', 'set', 'classification']:

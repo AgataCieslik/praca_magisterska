@@ -3,7 +3,7 @@ import numpy as np
 from joblib import load
 import os
 
-validation_data = pd.read_csv("validation_set.csv", index_col=0)
+validation_data = pd.read_csv(r"./sets_split/validation_set.csv", index_col=0)
 sample_size = validation_data.shape[0]
 
 positives_sample_size = np.sum(validation_data['classification'] == 1)

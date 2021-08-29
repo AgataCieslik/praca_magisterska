@@ -16,7 +16,7 @@ classifiers = [
     load('.\models\model_3_10.joblib'),
 ]
 
-validation_data_full = pd.read_csv("validation_set.csv", index_col=0)
+validation_data_full = pd.read_csv(r"./sets_split/validation_set.csv", index_col=0)
 sample_size = validation_data_full.shape[0]
 
 validation_data = validation_data_full[validation_data_full['dist_median'].notna() & validation_data_full['inliers_to_descriptors_ratio'].notna()]
