@@ -6,7 +6,7 @@ from numpy import linalg as LA
 
 min_match_count = 10
 # FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm=1, trees=1)
+index_params = dict(algorithm=1, trees=5)
 search_params = dict(checks=50)
 flann = cv.FlannBasedMatcher(index_params, search_params)
 

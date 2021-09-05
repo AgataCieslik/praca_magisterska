@@ -56,7 +56,7 @@ test_statistics.to_csv(r"./results/tests_results.csv")
 
 means = data[numeric_columns + ['class']].groupby('class').mean().add_suffix("_mean")
 variances = data[numeric_columns + ['class']].groupby('class').var().add_suffix("_variance")
-skewness = data[numeric_columns + ['class']].groupby('class').agg(stats.skew).add_suffix("_skewness")
+skewness = data[numeric_columns + ['class']].groupby('class').agg(lambda x:stats.skew(x,nan_policy='omit')).add_suffix("_skewness")
 kurtosis = data[numeric_columns + ['class']].groupby('class').agg(stats.kurtosis).add_suffix("_kurtosis")
 statistics = pd.concat([means, variances, skewness, kurtosis], axis=1)
 statistics.to_csv(r"./results/stats.csv")
